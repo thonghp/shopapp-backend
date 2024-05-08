@@ -10,13 +10,14 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class ProductDTO {
     @NotBlank(message = "Title is required")
-//    @Size(min = 3, max = 200, message = "Title must be between 3 and 200 characters")
+    @Size(min = 3, max = 200, message = "Title must be between 3 and 200 characters")
     private String name;
 
     @Min(value = 0, message = "Price must be greater than or equal to 0")
@@ -28,5 +29,5 @@ public class ProductDTO {
     @JsonProperty("category_id") // mapping tới category_id trong database
     private String categoryId;
 
-    private MultipartFile file;
+    private List<MultipartFile> files;
 }

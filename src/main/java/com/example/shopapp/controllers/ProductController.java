@@ -16,6 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -33,23 +34,28 @@ public class ProductController {
                         .collect(Collectors.toList());
                 return ResponseEntity.badRequest().body(errorMessages);
             }
-
-            MultipartFile file = productDTO.getFile();
-            // Kiểm tra kích thước file và định dạng
-            if (file.getSize() > 10 * 1024 * 1024) { // Kích thước > 10MB
-                return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE)
-                        .body("File is too large! Maximum size is 10MB");
+            List<MultipartFile> files = productDTO.getFiles();
+            // đoạn này xử lý coi có file gửi về không, nếu không xử lý ở đây sẽ bị exception
+            files = files == null ? new ArrayList<MultipartFile>() : files;
+            for (MultipartFile file : files) {
+                if (file.getSize() == 0) {
+                    continue;
+                }
+                // Kiểm tra kích thước file và định dạng
+                if (file.getSize() > 10 * 1024 * 1024) { // Kích thước > 10MB
+                    return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE)
+                            .body("File is too large! Maximum size is 10MB");
+                }
+                String contentType = file.getContentType();
+                if (contentType == null || !contentType.startsWith("image/")) {
+                    return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
+                            .body("File must be an image");
+                }
+                // Lưu file và cập nhật thumbnail trong DTO
+                String filename = storeFile(file); // Thay thế hàm này với code của bạn để lưu file
+                //lưu vào đối tượng product trong DB => sẽ làm sau
+                //lưu vào bảng product_images
             }
-            String contentType = file.getContentType();
-            if (contentType == null || !contentType.startsWith("image/")) {
-                return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
-                        .body("File must be an image");
-            }
-            // Lưu file và cập nhật thumbnail trong DTO
-            String filename = storeFile(file); // Thay thế hàm này với code của bạn để lưu file
-            //lưu vào đối tượng product trong DB => sẽ làm sau
-            //lưu vào bảng product_images
-//        }
             return ResponseEntity.ok("Product created successfully");
         } catch (
                 Exception e) {
