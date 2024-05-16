@@ -2,7 +2,7 @@ package com.example.shopapp.models;
 
 import lombok.*;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "categories")

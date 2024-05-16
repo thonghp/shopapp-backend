@@ -3,7 +3,7 @@ package com.example.shopapp.reponses;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
-import javax.persistence.MappedSuperclass;
+import jakarta.persistence.MappedSuperclass;
 import java.time.LocalDateTime;
 
 @Data//toString

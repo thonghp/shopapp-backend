@@ -3,7 +3,7 @@ package com.example.shopapp.dtos;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
-import javax.validation.constraints.Min;
+import jakarta.validation.constraints.Min;
 
 @Data
 @Builder
