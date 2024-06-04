@@ -1,22 +1,24 @@
 package com.example.shopapp.controllers;
 
+import com.example.shopapp.components.LocalizationUtils;
 import com.example.shopapp.dtos.OrderDetailDTO;
 import com.example.shopapp.exceptions.DataNotFoundException;
 import com.example.shopapp.models.OrderDetail;
 import com.example.shopapp.reponses.OrderDetailResponse;
 import com.example.shopapp.services.OrderDetailService;
+import com.example.shopapp.utils.MessageKeys;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.validation.Valid;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("${api.prefix}/order_details")
 @RequiredArgsConstructor
 public class OrderDetailController {
+    private final LocalizationUtils localizationUtils;
     private final OrderDetailService orderDetailService;
 
     @PostMapping("")
@@ -43,7 +45,8 @@ public class OrderDetailController {
                 .stream()
 //                .map(orderDetail -> OrderDetailResponse.fromOrderDetail(orderDetail))
                 .map(OrderDetailResponse::fromOrderDetail)
-                .collect(Collectors.toList());
+                //.collect(Collectors.toList());
+                .toList();
         return ResponseEntity.ok(orderDetailResponses);
 
 //        List<OrderDetailResponse> orderDetailResponses = new ArrayList<>();
@@ -65,6 +68,6 @@ public class OrderDetailController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteOrderDetail(@Valid @PathVariable("id") Long id) {
         orderDetailService.deleteById(id);
-        return ResponseEntity.ok().body("Delete Order detail with id : " + id + " successfully");
+        return ResponseEntity.ok().body(localizationUtils.getLocalizedMessage(MessageKeys.DELETE_ORDER_DETAIL_SUCCESSFULLY));
     }
 }
