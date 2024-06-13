@@ -47,7 +47,7 @@ public class JwtTokenFilter extends OncePerRequestFilter { // OncePerRequestFilt
             }
 
             final String token = authHeader.substring(7); // do token nó có chữ Bearer_ nên cắt ra để lấy token
-                final String phoneNumber = jwtTokenUtil.extractPhoneNumber(token);
+            final String phoneNumber = jwtTokenUtil.extractPhoneNumber(token);
             if (phoneNumber != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 User userDetails = (User) userDetailsService.loadUserByUsername(phoneNumber);
                 if (jwtTokenUtil.validateToken(token, userDetails)) {
@@ -67,7 +67,8 @@ public class JwtTokenFilter extends OncePerRequestFilter { // OncePerRequestFilt
 
     // if request is the token below will be bypassed
     private boolean isBypassToken(@NonNull HttpServletRequest request) {
-            final List<Pair<String, String>> bypassTokens = Arrays.asList(
+        final List<Pair<String, String>> bypassTokens = Arrays.asList(
+                Pair.of(String.format("%s/roles", apiPrefix), "GET"),
                 Pair.of(String.format("%s/products", apiPrefix), "GET"),
                 Pair.of(String.format("%s/categories", apiPrefix), "GET"),
                 Pair.of(String.format("%s/users/register", apiPrefix), "POST"),
