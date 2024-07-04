@@ -13,12 +13,10 @@ import com.example.shopapp.repositories.ProductImageRepository;
 import com.example.shopapp.repositories.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -29,6 +27,7 @@ public class ProductService implements IProductService {
     private final ProductImageRepository productImageRepository;
 
     @Override
+    @Transactional
     public Product createProduct(ProductDTO productDTO) throws DataNotFoundException {
         Category existingCategory = categoryRepository
                 .findById(productDTO.getCategoryId())
@@ -51,14 +50,22 @@ public class ProductService implements IProductService {
                 orElseThrow(() -> new DataNotFoundException("Cannot find product with id =" + productId));
     }
 
+//    @Override
+//    public List<Product> findProductsByIds(List<Long> productIds) {
+//        return productRepository.findProductsByIds(productIds);
+//    }
+
     @Override
-    public Page<ProductResponse> getAllProducts(PageRequest pageRequest) {
+    public Page<ProductResponse> getAllProducts(String keyword, Long categoryId, PageRequest pageRequest) {
+        Page<Product> productsPage = productRepository.searchProducts(categoryId, keyword, pageRequest);
+
         // map sử dụng để convert từ Product sang ProductResponse
-//        return productRepository.findAll(pageRequest).map(product -> ProductResponse.fromProduct(product));
-        return productRepository.findAll(pageRequest).map(ProductResponse::fromProduct);
+//        return productPage.map(product -> ProductResponse.fromProduct(product));
+        return productsPage.map(ProductResponse::fromProduct);
     }
 
     @Override
+    @Transactional
     public Product updateProduct(long id, ProductDTO productDTO) throws Exception {
         Product existingProduct = getProductById(id);
         if (existingProduct != null) {
@@ -78,6 +85,7 @@ public class ProductService implements IProductService {
     }
 
     @Override
+    @Transactional
     public void deleteProduct(long id) {
         Optional<Product> optionalProduct = productRepository.findById(id);
         optionalProduct.ifPresent(productRepository::delete);
@@ -89,6 +97,7 @@ public class ProductService implements IProductService {
     }
 
     @Override
+    @Transactional
     public ProductImage createProductImage(Long productId, ProductImageDTO productImageDTO) throws Exception {
         Product existingProduct = productRepository
                 .findById(productId)
@@ -101,7 +110,7 @@ public class ProductService implements IProductService {
         //Ko cho insert quá 5 ảnh cho 1 sản phẩm
         int size = productImageRepository.findByProductId(productId).size();
         if (size >= ProductImage.MAXIMUM_IMAGES_PER_PRODUCT) {
-            throw new InvalidParamException("Number of images must be <= " + ProductImage.MAXIMUM_IMAGES_PER_PRODUCT );
+            throw new InvalidParamException("Number of images must be <= " + ProductImage.MAXIMUM_IMAGES_PER_PRODUCT);
         }
         return productImageRepository.save(newProductImage);
     }
