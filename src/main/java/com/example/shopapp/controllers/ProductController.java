@@ -154,7 +154,7 @@ public class ProductController {
                                                            @RequestParam(defaultValue = "0", name = "category_id") Long categoryId,
                                                            @RequestParam(defaultValue = "0") int page,
                                                            @RequestParam(defaultValue = "10") int limit) {
-        PageRequest pageRequest = PageRequest.of(page, limit, Sort.by("id").ascending());
+        PageRequest pageRequest = PageRequest.of(page - 1, limit, Sort.by("id").ascending());
         Page<ProductResponse> productPage = productService.getAllProducts(keyword, categoryId, pageRequest);
         // Lấy tổng số trang
         int totalPages = productPage.getTotalPages();
@@ -169,8 +169,8 @@ public class ProductController {
     @GetMapping("/{id}")
     public ResponseEntity<?> getProductById(@PathVariable("id") Long productId) {
         try {
-            Product productById = productService.getProductById(productId);
-            return ResponseEntity.ok(ProductResponse.fromProduct(productById));
+            Product existingProduct = productService.getProductById(productId);
+            return ResponseEntity.ok(ProductResponse.fromProduct(existingProduct));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
